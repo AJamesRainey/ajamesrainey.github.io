@@ -1,20 +1,61 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: _site
 
 website:
-  title: "ajamesrainey"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+  title: "A. James Rainey"
+  site-url: https://ajamesrainey.github.io/
+
+  sidebar:
+    style: docked
+    search: true
+    collapse-level: 3
+    contents:
+      - text: "Home"
+        href: index.qmd
+
+      - text: "About"
+        href: about.qmd
+
+      - text: "Projects"
+        href: projects.qmd
+
+      - section: "Classes"
+        contents:
+          - section: "STAT 251"
+            contents:
+              - text: "Course Overview"
+                href: classes/stat251/index.qmd
+
+              - section: "Midterm Study"
+                contents:
+                  - text: "Study Guide"
+                    href: classes/stat251/midterm/index.qmd
+
+                  - text: "Key Formulas"
+                    href: classes/stat251/midterm/formulas.qmd
+
+                  - text: "R Code Reference"
+                    href: classes/stat251/midterm/r-code.qmd
+
+                  - text: "Practice Problems"
+                    href: classes/stat251/midterm/practice.qmd
+
+              - text: "General Notes"
+                href: classes/stat251/notes.qmd
+
+  page-navigation: true
+  back-to-top-navigation: true
 
 format:
   html:
     theme: cosmo
-    css: styles.css
     toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    smooth-scroll: true
 
-editor: visual
-
+execute:
+  warning: false
+  message: false

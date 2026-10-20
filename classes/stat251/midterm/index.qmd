@@ -1,0 +1,26 @@
+---
+title: "Midterm Study"
+---
+
+## Beta Distribution
+
+The beta distribution is commonly used as a prior for a probability parameter.
+
+$$\theta \sim \operatorname{Beta}(\alpha,\beta)$$
+
+## R Example
+
+```{r}
+#| echo: true
+
+theta <- seq(0, 1, length.out = 1000)
+
+plot(theta, dbeta(theta, 10, 5),
+     type = "l",
+     xlab = "Theta",
+     ylab = "Density")
+```
+
+## My Notes
+
+Write your explanations here.

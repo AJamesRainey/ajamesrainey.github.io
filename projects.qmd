@@ -1,0 +1,8 @@
+---
+title: "Projects"
+---
+
+# Statistical Projects
+
+This page will feature my statistical analyses,
+research, and data visualization projects.

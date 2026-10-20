@@ -1,0 +1,23 @@
+---
+title: "Statistics Notes"
+---
+
+# Statistics Notes
+
+A collection of notes on probability,
+statistical inference, and data analysis.
+
+## Bayesian Statistics
+
+For example, the beta distribution:
+
+$$
+\theta \sim \operatorname{Beta}(\alpha,\beta)
+$$
+
+```{r}
+#| echo: true
+#| fig-cap: "Beta Distribution"
+
+curve(dbeta(x, 10, 5), from = 0, to = 1)
+```

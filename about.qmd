@@ -1,9 +1,8 @@
 ---
-title: "About"
+title: "About Me"
 ---
 
-About this site
+I'm a Statistics student at Brigham Young University.
 
-```{r}
-1 + 1
-```
+My interests include data analysis, statistical modeling,
+and applications of statistics in financial services.

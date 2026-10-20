@@ -1,20 +1,18 @@
 ---
-title: "James Rainey"
-image: facebook.png
-about:
-  template: jolla
-  image-shape: round
-  image-width: 15em
-  links:
-    - text: Email
-      icon: envelope
-      href: mailto:raineyatsea@gmail.com
+title: "Home"
 ---
 
-This is a Quarto website.
+# Welcome
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+I'm James Rainey, a Statistics student at
+Brigham Young University.
 
-```{r}
-1 + 1
-```
+This website contains my statistical projects,
+research interests, and notes on data analysis.
+
+## Areas of Interest
+
+- Statistics and probability
+- Bayesian inference
+- Data analysis using R
+- Financial services and risk management
