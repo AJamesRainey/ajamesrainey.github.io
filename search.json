@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "Projects",
+    "section": "",
+    "text": "Statistical Projects\nThis page will feature my statistical analyses, research, and data visualization projects."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Home",
+    "section": "",
+    "text": "I’m James Rainey, a Statistics student at Brigham Young University.\nThis website contains my statistical projects, research interests, and notes on data analysis.\n\n\n\nStatistics and probability\nBayesian inference\nData analysis using R\nFinancial services and risk management"
+  },
+  {
+    "objectID": "index.html#areas-of-interest",
+    "href": "index.html#areas-of-interest",
+    "title": "Home",
+    "section": "",
+    "text": "Statistics and probability\nBayesian inference\nData analysis using R\nFinancial services and risk management"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About Me",
+    "section": "",
+    "text": "I’m a Statistics student at Brigham Young University.\nMy interests include data analysis, statistical modeling, and applications of statistics in financial services."
+  },
+  {
+    "objectID": "notes.html",
+    "href": "notes.html",
+    "title": "Statistics Notes",
+    "section": "",
+    "text": "A collection of notes on probability, statistical inference, and data analysis.\n\n\nFor example, the beta distribution:\n\\[\n\\theta \\sim \\operatorname{Beta}(\\alpha,\\beta)\n\\]\n\ncurve(dbeta(x, 10, 5), from = 0, to = 1)\n\n\n\n\nBeta Distribution"
+  },
+  {
+    "objectID": "notes.html#bayesian-statistics",
+    "href": "notes.html#bayesian-statistics",
+    "title": "Statistics Notes",
+    "section": "",
+    "text": "For example, the beta distribution:\n\\[\n\\theta \\sim \\operatorname{Beta}(\\alpha,\\beta)\n\\]\n\ncurve(dbeta(x, 10, 5), from = 0, to = 1)\n\n\n\n\nBeta Distribution"
+  }
+]
