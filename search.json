@@ -4,28 +4,92 @@
     "href": "projects.html",
     "title": "Projects",
     "section": "",
-    "text": "Statistical Projects\nThis page will feature my statistical analyses, research, and data visualization projects."
+    "text": "Statistical Projects\nThis page will feature my statistical analyses, research, and data visualization projects.\n\n\n\n\n Back to top",
+    "crumbs": [
+      "Projects"
+    ]
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Home",
     "section": "",
-    "text": "I’m James Rainey, a Statistics student at Brigham Young University.\nThis website contains my statistical projects, research interests, and notes on data analysis.\n\n\n\nStatistics and probability\nBayesian inference\nData analysis using R\nFinancial services and risk management"
+    "text": "I’m James Rainey, a Statistics student at Brigham Young University.\nThis website contains my statistical projects, research interests, and notes on data analysis.\n\n\n\nStatistics and probability\nBayesian inference\nData analysis using R\nFinancial services and risk management",
+    "crumbs": [
+      "Home"
+    ]
   },
   {
     "objectID": "index.html#areas-of-interest",
     "href": "index.html#areas-of-interest",
     "title": "Home",
     "section": "",
-    "text": "Statistics and probability\nBayesian inference\nData analysis using R\nFinancial services and risk management"
+    "text": "Statistics and probability\nBayesian inference\nData analysis using R\nFinancial services and risk management",
+    "crumbs": [
+      "Home"
+    ]
   },
   {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About Me",
     "section": "",
-    "text": "I’m a Statistics student at Brigham Young University.\nMy interests include data analysis, statistical modeling, and applications of statistics in financial services."
+    "text": "I’m a Statistics student at Brigham Young University.\nMy interests include data analysis, statistical modeling, and applications of statistics in financial services.\n\n\n\n Back to top",
+    "crumbs": [
+      "About"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html",
+    "href": "classes/stat251/midterm/index.html",
+    "title": "Midterm Study",
+    "section": "",
+    "text": "The beta distribution is commonly used as a prior for a probability parameter.\n\\[\\theta \\sim \\operatorname{Beta}(\\alpha,\\beta)\\]",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html#beta-distribution",
+    "href": "classes/stat251/midterm/index.html#beta-distribution",
+    "title": "Midterm Study",
+    "section": "",
+    "text": "The beta distribution is commonly used as a prior for a probability parameter.\n\\[\\theta \\sim \\operatorname{Beta}(\\alpha,\\beta)\\]",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html#r-example",
+    "href": "classes/stat251/midterm/index.html#r-example",
+    "title": "Midterm Study",
+    "section": "R Example",
+    "text": "R Example\n\ntheta &lt;- seq(0, 1, length.out = 1000)\n\nplot(theta, dbeta(theta, 10, 5),\n     type = \"l\",\n     xlab = \"Theta\",\n     ylab = \"Density\")",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html#my-notes",
+    "href": "classes/stat251/midterm/index.html#my-notes",
+    "title": "Midterm Study",
+    "section": "My Notes",
+    "text": "My Notes\nWrite your explanations here.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
   },
   {
     "objectID": "notes.html",
