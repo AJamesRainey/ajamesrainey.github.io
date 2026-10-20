@@ -30,6 +30,381 @@
     ]
   },
   {
+    "objectID": "classes/stat251/midterm/unit-6.html",
+    "href": "classes/stat251/midterm/unit-6.html",
+    "title": "Unit 6: Predictive Distributions",
+    "section": "",
+    "text": "Based on the corresponding unit in the supplied STAT 251 Midterm Exam Topics guide. Numerical examples are illustrative, not additional course data.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 6: Predictive Distributions"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-6.html#parameters-versus-future-observations",
+    "href": "classes/stat251/midterm/unit-6.html#parameters-versus-future-observations",
+    "title": "Unit 6: Predictive Distributions",
+    "section": "Parameters versus future observations",
+    "text": "Parameters versus future observations\nThe posterior \\(\\pi(\\theta\\mid y_{\\rm obs})\\) describes an unknown parameter. The posterior predictive distribution describes new data, combining parameter uncertainty with sampling variation. Assume new data are conditionally independent of the observed data given \\(\\theta\\): \\[f(y_{\\rm new}\\mid y_{\\rm obs})=\\int f(y_{\\rm new}\\mid\\theta)\\pi(\\theta\\mid y_{\\rm obs})\\,d\\theta.\\] Use a sum for a discrete parameter. A credible interval for \\(\\theta\\) and a predictive interval for a future count refer to different objects and scales.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 6: Predictive Distributions"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-6.html#monte-carlo-prediction",
+    "href": "classes/stat251/midterm/unit-6.html#monte-carlo-prediction",
+    "title": "Unit 6: Predictive Distributions",
+    "section": "Monte Carlo prediction",
+    "text": "Monte Carlo prediction\nDraw \\(\\theta^{(j)}\\) from the posterior, then draw \\(Y_{\\rm new}^{(j)}\\) from the sampling distribution conditional on that draw. For a batch of \\(m\\) future Bernoulli trials, draw one shared parameter per batch and then a binomial count.\n\nset.seed(253)\nA &lt;- 9; B &lt;- 5; m &lt;- 20; J &lt;- 50000\ntheta &lt;- rbeta(J, A, B)\ny_new &lt;- rbinom(J, size = m, prob = theta)\nc(mean_count = mean(y_new), prob_at_least_15 = mean(y_new &gt;= 15))\n\n      mean_count prob_at_least_15 \n        12.86274          0.32890 \n\nquantile(y_new, c(0.025, 0.975))\n\n 2.5% 97.5% \n    6    19 \n\n# Alternative: average conditional probabilities (less simulation noise).\nmean(pbinom(14, m, theta, lower.tail = FALSE))\n\n[1] 0.3294873\n\n\nThe integer quantile interval can contain more than 95% probability because discrete counts do not allow arbitrary tail probabilities.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 6: Predictive Distributions"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-6.html#derive-the-exact-beta-binomial-predictive-distribution",
+    "href": "classes/stat251/midterm/unit-6.html#derive-the-exact-beta-binomial-predictive-distribution",
+    "title": "Unit 6: Predictive Distributions",
+    "section": "Derive the exact beta-binomial predictive distribution",
+    "text": "Derive the exact beta-binomial predictive distribution\nSuppose \\(\\theta\\mid y\\sim\\operatorname{Beta}(A,B)\\) and \\(K\\mid\\theta\\sim\\operatorname{Binomial}(m,\\theta)\\). For \\(k=0,\\ldots,m\\), \\[\\begin{aligned}\nP(K=k\\mid y)\n&=\\int_0^1\\binom mk\\theta^k(1-\\theta)^{m-k}\n\\frac{\\theta^{A-1}(1-\\theta)^{B-1}}{B(A,B)}\\,d\\theta\\\\\n&=\\frac{\\binom mk}{B(A,B)}\\int_0^1\\theta^{A+k-1}(1-\\theta)^{B+m-k-1}\\,d\\theta\\\\\n&=\\binom mk\\frac{B(A+k,B+m-k)}{B(A,B)}.\n\\end{aligned}\\] The probability is zero outside the integer support. This is \\(\\operatorname{BetaBinomial}(m,A,B)\\), with \\[E(K\\mid y)=m\\mu,\\qquad\n\\operatorname{Var}(K\\mid y)=m\\mu(1-\\mu)\\frac{A+B+m}{A+B+1},\\quad \\mu=\\frac A{A+B}.\\]\n\nk &lt;- 0:m\nexact &lt;- exp(lchoose(m, k) + lbeta(A+k, B+m-k) - lbeta(A, B))\nstopifnot(abs(sum(exact)-1) &lt; 1e-10)\nsimulated &lt;- tabulate(y_new+1, nbins = m+1)/J\nmatplot(k, cbind(exact, simulated), type = \"b\", pch = c(16,1),\n        col = c(\"firebrick\", \"steelblue\"), lty = c(1,2),\n        xlab = \"Future successes\", ylab = \"Probability\")\nlegend(\"topleft\", c(\"Exact\", \"Monte Carlo\"), col = c(\"firebrick\", \"steelblue\"),\n       lty = c(1,2), pch = c(16,1), bty = \"n\")\n\n\n\n\n\n\n\nsum(exact[k &gt;= 15])\n\n[1] 0.3293289\n\n\nLog beta functions and log binomial coefficients avoid direct evaluation of very large factorials or tiny products.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 6: Predictive Distributions"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-6.html#plug-in-prediction-and-missing-uncertainty",
+    "href": "classes/stat251/midterm/unit-6.html#plug-in-prediction-and-missing-uncertainty",
+    "title": "Unit 6: Predictive Distributions",
+    "section": "Plug-in prediction and missing uncertainty",
+    "text": "Plug-in prediction and missing uncertainty\nA plug-in approach substitutes \\(\\hat\\theta\\), often the posterior mean, and uses \\(\\operatorname{Binomial}(m,\\hat\\theta)\\). With \\(\\hat\\theta=\\mu\\), its variance is \\(m\\mu(1-\\mu)\\), omitting \\[m(m-1)\\operatorname{Var}(\\theta\\mid y).\\] Indeed, the law of total variance gives \\[\\operatorname{Var}(K\\mid y)=E[m\\theta(1-\\theta)\\mid y]+\\operatorname{Var}(m\\theta\\mid y).\\] For \\(m&gt;1\\) and positive posterior variance the full predictive count distribution is more dispersed. For a single future Bernoulli trial (\\(m=1\\)), mixing yields Bernoulli probability \\(\\mu\\), so this particular plug-in predictive distribution is exact.\n\nmu &lt;- A/(A+B)\nc(full_variance = m*mu*(1-mu)*(A+B+m)/(A+B+1),\n  plugin_variance = m*mu*(1-mu))\n\n  full_variance plugin_variance \n      10.408163        4.591837 \n\n\nFuture trials are independent conditional on \\(\\theta\\), but positively associated after integrating out their common uncertain parameter.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 6: Predictive Distributions"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-6.html#prior-predictive-checks",
+    "href": "classes/stat251/midterm/unit-6.html#prior-predictive-checks",
+    "title": "Unit 6: Predictive Distributions",
+    "section": "Prior predictive checks",
+    "text": "Prior predictive checks\nBefore observing these data, \\[f(y_{\\rm new})=\\int f(y_{\\rm new}\\mid\\theta)\\pi(\\theta)\\,d\\theta.\\] For a \\(\\operatorname{Beta}(a,b)\\) prior and a future binomial count, this is the same beta-binomial formula with \\(a,b\\) replacing \\(A,B\\). Simulate plausible data under the sampling design and ask whether their range, extreme values, and frequencies agree with domain knowledge. Revise implausible priors before using the same observations to update them.\n\nset.seed(254)\na &lt;- 2; b &lt;- 2; m &lt;- 20\nprior_theta &lt;- rbeta(50000, a, b)\nprior_y &lt;- rbinom(length(prior_theta), m, prior_theta)\nhist(prior_y, breaks = seq(-0.5, m+0.5, by = 1), probability = TRUE,\n     main = \"Prior predictive check\", xlab = \"Successes in 20 trials\")\n\n\n\n\n\n\n\nc(prob_extreme = mean(prior_y == 0 | prior_y == m))\n\nprob_extreme \n      0.0227 \n\n\n\nConnection to the marginal likelihood\nThe marginal likelihood is the prior predictive mass/density evaluated at the observed data. For an observed count \\(s\\) from \\(n\\) trials, \\[f(s)=\\binom ns\\frac{B(a+s,b+n-s)}{B(a,b)}.\\] For a particular ordered Bernoulli sequence, the binomial coefficient is absent. The sample space must match what was observed. The posterior predictive uses the updated posterior; the marginal likelihood uses the prior. Proper priors are essential for well-defined prior predictive distributions and usual marginal-likelihood comparisons.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 6: Predictive Distributions"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-6.html#check-your-understanding",
+    "href": "classes/stat251/midterm/unit-6.html#check-your-understanding",
+    "title": "Unit 6: Predictive Distributions",
+    "section": "Check your understanding",
+    "text": "Check your understanding\nWhy should you not draw an independent posterior \\(\\theta\\) for each future trial within one batch? That changes the assumed shared-rate model and removes the within-batch dependence induced by parameter uncertainty.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 6: Predictive Distributions"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html",
+    "href": "classes/stat251/midterm/unit-4.html",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "",
+    "text": "Based on the corresponding unit in the supplied STAT 251 Midterm Exam Topics guide. Numerical examples are illustrative, not additional course data.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html#bernoulli-and-binomial-sampling",
+    "href": "classes/stat251/midterm/unit-4.html#bernoulli-and-binomial-sampling",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "Bernoulli and binomial sampling",
+    "text": "Bernoulli and binomial sampling\nFor \\(Y\\sim\\operatorname{Bernoulli}(\\theta)\\), \\(Y\\in\\{0,1\\}\\), \\[P(Y=y\\mid\\theta)=\\theta^y(1-\\theta)^{1-y},\\quad E(Y)=\\theta,\\quad \\operatorname{Var}(Y)=\\theta(1-\\theta).\\] If \\(Y_1,\\ldots,Y_n\\) are iid Bernoulli given \\(\\theta\\), then \\(S=\\sum_iY_i\\sim\\operatorname{Binomial}(n,\\theta)\\): \\[P(S=s\\mid\\theta)=\\binom ns\\theta^s(1-\\theta)^{n-s},\\quad s=0,\\ldots,n.\\] Its mean is \\(n\\theta\\) and variance is \\(n\\theta(1-\\theta)\\). The parameter \\(\\theta\\) is the common success probability per trial, not the number of successes. The binomial assumptions require a fixed trial count, binary outcomes, and conditional independence with a common probability.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html#beta-priors-support-moments-and-shape",
+    "href": "classes/stat251/midterm/unit-4.html#beta-priors-support-moments-and-shape",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "Beta priors: support, moments, and shape",
+    "text": "Beta priors: support, moments, and shape\nFor \\(a,b&gt;0\\), \\[\\pi(\\theta)=\\frac{\\theta^{a-1}(1-\\theta)^{b-1}}{B(a,b)}\\mathbf1_{(0,1)}(\\theta),\\quad\nB(a,b)=\\frac{\\Gamma(a)\\Gamma(b)}{\\Gamma(a+b)}.\\] The density is positive on \\((0,1)\\) (its topological support is \\([0,1]\\)), with no point mass at either endpoint. \\[E(\\theta)=\\frac a{a+b},\\qquad \\operatorname{Var}(\\theta)=\\frac{ab}{(a+b)^2(a+b+1)}.\\]\nWhen \\(a=b=1\\) it is uniform. Both parameters above one give an interior mode \\((a-1)/(a+b-2)\\). Both below one give a U-shaped density; \\(a&lt;1\\) gives a singularity near zero and \\(b&lt;1\\) near one. With one shape at most one and the other at least one, it is monotone except for the uniform case. Equal shapes yield symmetry; \\(a&gt;b\\) puts the mean above one-half.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html#conjugacy-and-posterior-derivation",
+    "href": "classes/stat251/midterm/unit-4.html#conjugacy-and-posterior-derivation",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "Conjugacy and posterior derivation",
+    "text": "Conjugacy and posterior derivation\nA prior family is conjugate for a likelihood when every posterior remains in that family. Given \\(s\\) successes among \\(n\\) trials, \\[\\begin{aligned}\n\\pi(\\theta\\mid s)&\\propto \\underbrace{\\theta^s(1-\\theta)^{n-s}}_{\\text{likelihood kernel}}\n\\underbrace{\\theta^{a-1}(1-\\theta)^{b-1}}_{\\text{prior kernel}}\\\\\n&=\\theta^{(a+s)-1}(1-\\theta)^{(b+n-s)-1}.\n\\end{aligned}\\] Recognizing the beta kernel on \\((0,1)\\) gives \\[\\theta\\mid s\\sim\\operatorname{Beta}(A,B),\\qquad A=a+s,\\ B=b+n-s.\\] Thus the normalized posterior is \\(\\theta^{A-1}(1-\\theta)^{B-1}/B(A,B)\\) on that interval.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html#credible-intervals-and-confidence-intervals",
+    "href": "classes/stat251/midterm/unit-4.html#credible-intervals-and-confidence-intervals",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "Credible intervals and confidence intervals",
+    "text": "Credible intervals and confidence intervals\n\na &lt;- 2; b &lt;- 2; s &lt;- 7; n &lt;- 10\nA &lt;- a+s; B &lt;- b+n-s\nqbeta(c(0.025, 0.975), A, B)\n\n[1] 0.3857383 0.8614207\n\n\nConditional on the data, prior, and likelihood, this equal-tailed interval has posterior probability 0.95 of containing \\(\\theta\\). A frequentist 95% confidence procedure covers the fixed true parameter in 95% of repeated samples under its assumptions. Its coverage statement is about the procedure, not a posterior probability assigned to the realized interval.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html#plot-prior-likelihood-and-posterior",
+    "href": "classes/stat251/midterm/unit-4.html#plot-prior-likelihood-and-posterior",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "Plot prior, likelihood, and posterior",
+    "text": "Plot prior, likelihood, and posterior\n\nt &lt;- seq(0.001, 0.999, length.out = 1000)\nprior &lt;- dbeta(t, a, b)\npost &lt;- dbeta(t, A, B)\n# Scale likelihood to integrate to one only for a common plotting scale.\nscaled_lik &lt;- dbeta(t, s+1, n-s+1)\nmatplot(t, cbind(prior, scaled_lik, post), type = \"l\", lty = c(2,3,1),\n        col = c(\"gray40\", \"steelblue\", \"firebrick\"),\n        xlab = expression(theta), ylab = \"Density / scaled likelihood\")\nlegend(\"topleft\", c(\"Prior\", \"Scaled likelihood\", \"Posterior\"),\n       col = c(\"gray40\", \"steelblue\", \"firebrick\"), lty = c(2,3,1), bty = \"n\")\n\n\n\n\n\n\n\n\nThe likelihood favors values near \\(s/n\\); the prior adjusts their relative weights. Scaling the likelihood for display does not make it a posterior under the chosen prior.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html#bayesian-hypothesis-testing",
+    "href": "classes/stat251/midterm/unit-4.html#bayesian-hypothesis-testing",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "Bayesian hypothesis testing",
+    "text": "Bayesian hypothesis testing\nFor \\(H_+:\\theta&gt;0.5\\) versus \\(H_-:\\theta\\leq0.5\\), compute posterior region probabilities:\n\np_prior &lt;- pbeta(0.5, a, b, lower.tail = FALSE)\np_post &lt;- pbeta(0.5, A, B, lower.tail = FALSE)\nc(posterior_Hplus = p_post,\n  BF_plus_minus = (p_post/(1-p_post))/(p_prior/(1-p_prior)))\n\nposterior_Hplus   BF_plus_minus \n      0.8665771       6.4949680 \n\n\nPosterior odds equal prior odds times the Bayes factor for these complementary hypotheses with the prior’s induced conditional distributions. These are not p-values. A continuous beta prior gives \\(P(\\theta=0.5)=0\\) before and after updating. Testing an exact point null against an alternative with positive posterior null probability requires an explicit prior point mass and model probabilities. A decision also depends on the losses of incorrect actions.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-4.html#prior-elicitation",
+    "href": "classes/stat251/midterm/unit-4.html#prior-elicitation",
+    "title": "Unit 4: Beta-Binomial Inference",
+    "section": "Prior elicitation",
+    "text": "Prior elicitation\n\nObjective priors\nCommon defaults include the uniform \\(\\operatorname{Beta}(1,1)\\) and Jeffreys \\(\\operatorname{Beta}(1/2,1/2)\\) prior. They encode different information; uniformity depends on parameterization. The formal Haldane kernel corresponds to \\(a=b=0\\) and is improper; its posterior is proper only if both successes and failures occur. Prefer a proper prior for predictive calculations and marginal likelihoods.\n\n\nData augmentation: prior successes and failures\nStarting with \\(\\operatorname{Beta}(a_0,b_0)\\), adding hypothetical \\(s_0\\) successes and \\(f_0\\) failures gives \\(\\operatorname{Beta}(a_0+s_0,b_0+f_0)\\). Relative to a uniform baseline, the added counts are \\(a-1,b-1\\), when nonnegative. The common shorthand of calling \\(a,b\\) prior counts describes the update algebra; always state the baseline convention. Hypothetical observations are an elicitation device, not actual new data.\n\n\nMethod of moments\nGiven a desired mean \\(\\mu\\) and variance \\(v\\), set \\[\\kappa=\\frac{\\mu(1-\\mu)}{v}-1,\\quad a=\\mu\\kappa,\\quad b=(1-\\mu)\\kappa,\\] requiring \\(0&lt;\\mu&lt;1\\) and \\(0&lt;v&lt;\\mu(1-\\mu)\\).\n\nmu &lt;- 0.6; v &lt;- 0.02\nkappa &lt;- mu*(1-mu)/v - 1\nc(a = mu*kappa, b = (1-mu)*kappa)\n\n  a   b \n6.6 4.4 \n\n\n\n\nPrior strength versus sample size\nFor \\(n&gt;0\\), the posterior mean is \\[\\frac{a+s}{a+b+n}=\\frac{a+b}{a+b+n}\\frac a{a+b}\n+\\frac n{a+b+n}\\frac sn.\\] The concentration \\(a+b\\) acts as a prior effective sample size in this mean-weighting sense. A large concentration relative to \\(n\\) pulls the result toward the prior mean; large \\(n\\) gives the sample proportion more weight. Compare plausible priors to assess sensitivity, especially with small samples.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 4: Beta-Binomial Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-2.html",
+    "href": "classes/stat251/midterm/unit-2.html",
+    "title": "Unit 2: Probability and R Foundations",
+    "section": "",
+    "text": "Based on the corresponding unit in the supplied STAT 251 Midterm Exam Topics guide. Numerical examples are illustrative, not additional course data.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 2: Probability and R Foundations"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-2.html#conditional-probability-total-probability-and-bayes-rule",
+    "href": "classes/stat251/midterm/unit-2.html#conditional-probability-total-probability-and-bayes-rule",
+    "title": "Unit 2: Probability and R Foundations",
+    "section": "Conditional probability, total probability, and Bayes’ rule",
+    "text": "Conditional probability, total probability, and Bayes’ rule\nFor \\(P(B)&gt;0\\), \\[P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}.\\] For a mutually exclusive, exhaustive partition \\(H_1,\\ldots,H_k\\), \\[P(B)=\\sum_jP(B\\mid H_j)P(H_j),\\qquad\nP(H_i\\mid B)=\\frac{P(B\\mid H_i)P(H_i)}{\\sum_jP(B\\mid H_j)P(H_j)}.\\] Identify the hypotheses, assign prior probabilities, compute the evidence under each, and normalize. Do not interchange \\(P(B\\mid H)\\) and \\(P(H\\mid B)\\).\n\nWorked application\nA machine is from supplier A with probability 0.3 and B with probability 0.7. Defect rates are 0.08 and 0.02. Given a defect \\(D\\), \\[P(A\\mid D)=\\frac{0.08(0.3)}{0.08(0.3)+0.02(0.7)}\\approx0.632.\\]\n\nprior &lt;- c(A = 0.3, B = 0.7)\nlikelihood &lt;- c(A = 0.08, B = 0.02)\nevidence &lt;- sum(prior * likelihood)\nprior * likelihood / evidence\n\n        A         B \n0.6315789 0.3684211",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 2: Probability and R Foundations"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-2.html#random-variables-support-and-indicators",
+    "href": "classes/stat251/midterm/unit-2.html#random-variables-support-and-indicators",
+    "title": "Unit 2: Probability and R Foundations",
+    "section": "Random variables, support, and indicators",
+    "text": "Random variables, support, and indicators\n\nDiscrete: probability mass functions\nA pmf \\(p(y)=P(Y=y)\\) satisfies \\(p(y)\\geq0\\) and \\(\\sum_y p(y)=1\\). The support is the set of possible outcomes with positive mass. For a binomial variable it is \\(\\{0,\\ldots,n\\}\\) when \\(0&lt;\\theta&lt;1\\).\n\n\nContinuous: probability density functions\nA pdf satisfies \\(f(y)\\geq0\\) and \\(\\int f(y)\\,dy=1\\). Probabilities are areas: \\[P(a&lt;Y&lt;b)=\\int_a^b f(y)\\,dy.\\] For a continuous variable \\(P(Y=y)=0\\); density height is not probability and can exceed one. An indicator makes support explicit. For example, \\[f(y)=\\frac1{v-u}\\mathbf1_{(u,v)}(y),\\quad u&lt;v.\\] The indicator equals one on its specified set and zero elsewhere.\n\n\nCumulative distribution functions\nFor either type, \\(F(t)=P(Y\\leq t)\\). It is nondecreasing, right-continuous, and approaches zero and one at the two tails. A discrete cdf has jumps. In general, \\[P(a&lt;Y\\leq b)=F(b)-F(a).\\] For discrete variables, inclusion or exclusion of endpoints can change the answer.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 2: Probability and R Foundations"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-2.html#expectation-and-variance",
+    "href": "classes/stat251/midterm/unit-2.html#expectation-and-variance",
+    "title": "Unit 2: Probability and R Foundations",
+    "section": "Expectation and variance",
+    "text": "Expectation and variance\n\\[E[g(Y)]=\\sum_y g(y)p(y)\\quad\\text{or}\\quad\\int g(y)f(y)\\,dy,\\] when the expectation exists. With \\(\\mu=E(Y)\\), \\[\\operatorname{Var}(Y)=E[(Y-\\mu)^2]=E(Y^2)-\\mu^2.\\] Also \\(E(a+bY)=a+bE(Y)\\) and \\(\\operatorname{Var}(a+bY)=b^2\\operatorname{Var}(Y)\\). Expectations add even without independence; variances add without covariance terms only when the covariances vanish.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 2: Probability and R Foundations"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-2.html#r-distribution-functions-and-plots",
+    "href": "classes/stat251/midterm/unit-2.html#r-distribution-functions-and-plots",
+    "title": "Unit 2: Probability and R Foundations",
+    "section": "R distribution functions and plots",
+    "text": "R distribution functions and plots\n\n\n\nPrefix\nMeaning\nExample\n\n\n\n\nd\npmf or pdf value\ndbinom(3, 10, 0.4)\n\n\np\ncdf, lower tail by default\npbinom(3, 10, 0.4)\n\n\nq\nquantile (inverse cdf convention)\nqbeta(0.975, 2, 3)\n\n\nr\nrandom draws\nrbeta(1000, 2, 3)\n\n\n\n\nk &lt;- 0:10\nmass &lt;- dbinom(k, size = 10, prob = 0.4)\nplot(k, mass, type = \"h\", lwd = 3, xlab = \"Successes\", ylab = \"Probability\")\n\n\n\n\n\n\n\nc(mean = sum(k * mass), variance = sum((k - sum(k * mass))^2 * mass))\n\n    mean variance \n     4.0      2.4 \n\n# P(2 &lt;= Y &lt;= 5): subtract the cdf at 1, not 2\npbinom(5, 10, 0.4) - pbinom(1, 10, 0.4)\n\n[1] 0.787404\n\ncurve(dbeta(x, 2, 3), from = 0, to = 1,\n      xlab = expression(theta), ylab = \"Density\")\n\n\n\n\n\n\n\n\n\nPlot a likelihood for fixed data\n\ntheta &lt;- seq(0, 1, length.out = 1001)\nplot(theta, dbinom(7, size = 10, prob = theta), type = \"l\",\n     xlab = expression(theta), ylab = \"Likelihood for 7 of 10\")\n\n\n\n\n\n\n\n\nThe pmf plot varies the count while holding the probability fixed. The likelihood plot varies the probability while holding the observed count fixed.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 2: Probability and R Foundations"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/r-code.html",
+    "href": "classes/stat251/midterm/r-code.html",
+    "title": "R Code Reference",
+    "section": "",
+    "text": "d evaluates a mass or density; p a cdf; q a quantile; r simulates. See Unit 2 for plots and endpoint conventions.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "R Code Reference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/r-code.html#distribution-function-families",
+    "href": "classes/stat251/midterm/r-code.html#distribution-function-families",
+    "title": "R Code Reference",
+    "section": "",
+    "text": "d evaluates a mass or density; p a cdf; q a quantile; r simulates. See Unit 2 for plots and endpoint conventions.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "R Code Reference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/r-code.html#complete-update-and-simulation",
+    "href": "classes/stat251/midterm/r-code.html#complete-update-and-simulation",
+    "title": "R Code Reference",
+    "section": "Complete update and simulation",
+    "text": "Complete update and simulation\n\nset.seed(251)\na &lt;- 2; b &lt;- 2; s &lt;- 7; n &lt;- 10\nA &lt;- a+s; B &lt;- b+n-s\nqbeta(c(0.025, 0.975), A, B)\n\n[1] 0.3857383 0.8614207\n\npbeta(0.5, A, B, lower.tail = FALSE)\n\n[1] 0.8665771\n\ntheta &lt;- rbeta(50000, A, B)\nc(posterior_mean = mean(theta), mcse = sd(theta)/sqrt(length(theta)))\n\nposterior_mean           mcse \n  0.6428064357   0.0005543883 \n\ny_new &lt;- rbinom(length(theta), 20, theta)\nquantile(y_new, c(0.025, 0.975))\n\n 2.5% 97.5% \n    6    18 \n\n\nUse lower.tail = FALSE for upper-tail probabilities. Use log = TRUE, lbeta, and lchoose for numerically stable calculations. Use set.seed once before a simulation to reproduce it. Every unit’s examples run with base R; Quarto rendering also requires knitr and rmarkdown.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "R Code Reference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html",
+    "href": "classes/stat251/midterm/index.html",
+    "title": "Midterm Study",
+    "section": "",
+    "text": "Work through these six units in order. Each follows the topics in the supplied STAT 251 midterm guide, with equations, explanations, and executable base R examples. Examples use illustrative data and state the assumptions needed for each calculation.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html#study-workflow",
+    "href": "classes/stat251/midterm/index.html#study-workflow",
+    "title": "Midterm Study",
+    "section": "Study workflow",
+    "text": "Study workflow\nExplain each definition aloud, derive each update without notes, run the R examples, then change a prior or sample size and explain the result. Use the key formulas, R reference, and practice problems with solutions to check your understanding.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html#notation",
+    "href": "classes/stat251/midterm/index.html#notation",
+    "title": "Midterm Study",
+    "section": "Notation",
+    "text": "Notation\n\\(s\\) successes among \\(n\\) trials; \\(a,b\\) prior beta shapes; \\(A=a+s\\), \\(B=b+n-s\\) posterior shapes; \\(m\\) future trials; \\(J\\) Monte Carlo draws. Unless stated otherwise, beta priors are proper and Bernoulli/binomial observations are independent conditional on their common parameter.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/index.html#further-reference",
+    "href": "classes/stat251/midterm/index.html#further-reference",
+    "title": "Midterm Study",
+    "section": "Further reference",
+    "text": "Further reference\n\nR’s official probability distribution documentation\nR’s beta distribution reference\nR’s binomial distribution reference\n\nThe supplied topic list defines the scope; examples and explanations here are supplementary study material.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Study Guide"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/index.html",
+    "href": "classes/stat251/index.html",
+    "title": "STAT 251",
+    "section": "",
+    "text": "Midterm Study: six units covering the supplied exam topic list.\nGeneral Notes",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Course Overview"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/index.html#course-resources",
+    "href": "classes/stat251/index.html#course-resources",
+    "title": "STAT 251",
+    "section": "",
+    "text": "Midterm Study: six units covering the supplied exam topic list.\nGeneral Notes",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Course Overview"
+    ]
+  },
+  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About Me",
@@ -40,55 +415,352 @@
     ]
   },
   {
-    "objectID": "classes/stat251/midterm/index.html",
-    "href": "classes/stat251/midterm/index.html",
-    "title": "Midterm Study",
+    "objectID": "classes/stat251/midterm/formulas.html",
+    "href": "classes/stat251/midterm/formulas.html",
+    "title": "Key Formulas",
     "section": "",
-    "text": "The beta distribution is commonly used as a prior for a probability parameter.\n\\[\\theta \\sim \\operatorname{Beta}(\\alpha,\\beta)\\]",
+    "text": "\\[L(\\theta;\\mathbf y)=\\prod_i f(y_i\\mid\\theta),\\qquad\n\\pi(\\theta\\mid y)=\\frac{f(y\\mid\\theta)\\pi(\\theta)}{\\int f(y\\mid t)\\pi(t)\\,dt}.\\]\nThe product assumes conditional independence. Replace integrals by sums for discrete parameters.",
     "crumbs": [
       "Classes",
       "STAT 251",
       "Midterm Study",
-      "Study Guide"
+      "Key Formulas"
     ]
   },
   {
-    "objectID": "classes/stat251/midterm/index.html#beta-distribution",
-    "href": "classes/stat251/midterm/index.html#beta-distribution",
-    "title": "Midterm Study",
+    "objectID": "classes/stat251/midterm/formulas.html#model-and-bayes-rule",
+    "href": "classes/stat251/midterm/formulas.html#model-and-bayes-rule",
+    "title": "Key Formulas",
     "section": "",
-    "text": "The beta distribution is commonly used as a prior for a probability parameter.\n\\[\\theta \\sim \\operatorname{Beta}(\\alpha,\\beta)\\]",
+    "text": "\\[L(\\theta;\\mathbf y)=\\prod_i f(y_i\\mid\\theta),\\qquad\n\\pi(\\theta\\mid y)=\\frac{f(y\\mid\\theta)\\pi(\\theta)}{\\int f(y\\mid t)\\pi(t)\\,dt}.\\]\nThe product assumes conditional independence. Replace integrals by sums for discrete parameters.",
     "crumbs": [
       "Classes",
       "STAT 251",
       "Midterm Study",
-      "Study Guide"
+      "Key Formulas"
     ]
   },
   {
-    "objectID": "classes/stat251/midterm/index.html#r-example",
-    "href": "classes/stat251/midterm/index.html#r-example",
-    "title": "Midterm Study",
-    "section": "R Example",
-    "text": "R Example\n\ntheta &lt;- seq(0, 1, length.out = 1000)\n\nplot(theta, dbeta(theta, 10, 5),\n     type = \"l\",\n     xlab = \"Theta\",\n     ylab = \"Density\")",
+    "objectID": "classes/stat251/midterm/formulas.html#beta-binomial-update-and-summaries",
+    "href": "classes/stat251/midterm/formulas.html#beta-binomial-update-and-summaries",
+    "title": "Key Formulas",
+    "section": "Beta-binomial update and summaries",
+    "text": "Beta-binomial update and summaries\n\\[A=a+s,\\quad B=b+n-s,\\quad\\theta\\mid s\\sim\\operatorname{Beta}(A,B).\\] \\[E(\\theta\\mid s)=\\frac A{A+B},\\quad\n\\operatorname{Var}(\\theta\\mid s)=\\frac{AB}{(A+B)^2(A+B+1)}.\\]\nThe mode is \\((A-1)/(A+B-2)\\) if \\(A,B&gt;1\\). Equal-tailed 95% intervals use qbeta(c(.025,.975), A, B).",
     "crumbs": [
       "Classes",
       "STAT 251",
       "Midterm Study",
-      "Study Guide"
+      "Key Formulas"
     ]
   },
   {
-    "objectID": "classes/stat251/midterm/index.html#my-notes",
-    "href": "classes/stat251/midterm/index.html#my-notes",
-    "title": "Midterm Study",
-    "section": "My Notes",
-    "text": "My Notes\nWrite your explanations here.",
+    "objectID": "classes/stat251/midterm/formulas.html#simulation-and-prediction",
+    "href": "classes/stat251/midterm/formulas.html#simulation-and-prediction",
+    "title": "Key Formulas",
+    "section": "Simulation and prediction",
+    "text": "Simulation and prediction\n\\[E[g(\\theta)\\mid y]\\approx J^{-1}\\sum_jg(\\theta^{(j)}),\\quad\n\\operatorname{MCSE}(\\overline g)\\approx s_g/\\sqrt J.\\]\nThe MCSE formula assumes iid draws and finite variance.\n\\[P(K=k\\mid y)=\\binom mk\\frac{B(A+k,B+m-k)}{B(A,B)},\\quad k=0,\\ldots,m.\\]\nSee Unit 4 for derivations and prior elicitation, Unit 5 for simulation, and Unit 6 for predictive moments and assumptions.",
     "crumbs": [
       "Classes",
       "STAT 251",
       "Midterm Study",
-      "Study Guide"
+      "Key Formulas"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/practice.html",
+    "href": "classes/stat251/midterm/practice.html",
+    "title": "Practice Problems",
+    "section": "",
+    "text": "Try each problem before opening its solution.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Practice Problems"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/practice.html#unit-1-write-a-likelihood",
+    "href": "classes/stat251/midterm/practice.html#unit-1-write-a-likelihood",
+    "title": "Practice Problems",
+    "section": "Unit 1: Write a likelihood",
+    "text": "Unit 1: Write a likelihood\nFive iid Bernoulli observations contain four successes. Write the ordered-data likelihood and the count likelihood. Where is each maximized?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\nOrdered-data likelihood: \\(\\theta^4(1-\\theta)\\). Count likelihood: \\(5\\theta^4(1-\\theta)\\). Both are maximized at \\(4/5\\). The count likelihood aggregates the five possible orders.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Practice Problems"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/practice.html#unit-2-invert-a-conditional-probability",
+    "href": "classes/stat251/midterm/practice.html#unit-2-invert-a-conditional-probability",
+    "title": "Practice Problems",
+    "section": "Unit 2: Invert a conditional probability",
+    "text": "Unit 2: Invert a conditional probability\n\\(P(H)=0.2\\), \\(P(E\\mid H)=0.8\\), \\(P(E\\mid H^c)=0.1\\). Find \\(P(H\\mid E)\\).\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\\(P(E)=0.8(0.2)+0.1(0.8)=0.24\\), so \\(P(H\\mid E)=0.16/0.24=2/3\\).",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Practice Problems"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/practice.html#unit-3-interpret-an-interval",
+    "href": "classes/stat251/midterm/practice.html#unit-3-interpret-an-interval",
+    "title": "Practice Problems",
+    "section": "Unit 3: Interpret an interval",
+    "text": "Unit 3: Interpret an interval\nA posterior assigns probability 0.95 to \\((0.3,0.7)\\). What does this mean? Is it a statement about repeated-sample coverage?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\nGiven the observed data and assumed prior/model, the parameter lies in that interval with posterior probability 0.95. Repeated-sample coverage is a different property; it is not implied by this posterior statement alone.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Practice Problems"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/practice.html#unit-4-update-and-test",
+    "href": "classes/stat251/midterm/practice.html#unit-4-update-and-test",
+    "title": "Practice Problems",
+    "section": "Unit 4: Update and test",
+    "text": "Unit 4: Update and test\nA Beta(2,3) prior is updated by eight successes in ten trials. Find the posterior mean, equal-tailed 95% interval, and posterior probability that \\(\\theta&gt;0.5\\).\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\nThe posterior is Beta(10,5); its mean is \\(10/15\\).\n\nc(mean = 10/15, probability = pbeta(0.5, 10, 5, lower.tail = FALSE))\n\n       mean probability \n  0.6666667   0.9102173 \n\nqbeta(c(0.025, 0.975), 10, 5)\n\n[1] 0.4189647 0.8724016",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Practice Problems"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/practice.html#unit-5-monte-carlo-precision",
+    "href": "classes/stat251/midterm/practice.html#unit-5-monte-carlo-precision",
+    "title": "Practice Problems",
+    "section": "Unit 5: Monte Carlo precision",
+    "text": "Unit 5: Monte Carlo precision\nWith 10,000 independent draws, a posterior probability estimate is 0.6. Estimate its MCSE. How many draws approximately halve it?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\\(\\sqrt{0.6(0.4)/10000}\\approx0.00490\\). About 40,000 independent draws halve this MCSE. This calculation concerns computation, not posterior concentration.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Practice Problems"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/practice.html#unit-6-predict-a-count",
+    "href": "classes/stat251/midterm/practice.html#unit-6-predict-a-count",
+    "title": "Practice Problems",
+    "section": "Unit 6: Predict a count",
+    "text": "Unit 6: Predict a count\nWith a Beta(10,5) posterior and five future trials, find the mean and variance of the future count. Compare with plug-in prediction.\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\nThe mean is \\(5(2/3)=10/3\\). Full variance is \\(5(2/3)(1/3)(20/16)=25/18\\); plug-in variance is \\(10/9\\). The difference is \\(5(4)\\operatorname{Var}(\\theta\\mid y)=5/18\\).",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Practice Problems"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-1.html",
+    "href": "classes/stat251/midterm/unit-1.html",
+    "title": "Unit 1: Models and Likelihood",
+    "section": "",
+    "text": "Based on the corresponding unit in the supplied STAT 251 Midterm Exam Topics guide. Numerical examples are illustrative, not additional course data.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 1: Models and Likelihood"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-1.html#statistical-models-and-model-formulation",
+    "href": "classes/stat251/midterm/unit-1.html#statistical-models-and-model-formulation",
+    "title": "Unit 1: Models and Likelihood",
+    "section": "Statistical models and model formulation",
+    "text": "Statistical models and model formulation\nA statistical model is a family of probability distributions \\[\\mathcal M=\\{f(y\\mid\\theta):\\theta\\in\\Theta\\}.\\] Here \\(y\\) denotes possible data, \\(\\theta\\) an unknown parameter, and \\(\\Theta\\) the parameter space. A model represents assumptions about how observations arise; it is an approximation, not the data themselves.\n\nSteps to formulate a model\n\nDefine the observational unit, outcome, sampling design, and scientific question.\nSpecify the outcome’s possible values (support) and choose a distribution compatible with them.\nDefine the unknown parameters and their allowed values.\nState dependence and sampling assumptions, then write the joint distribution.\nUse observations to estimate parameters or update uncertainty; check the model against the observed context and data.\n\nFor repeated binary outcomes, let \\(Y_i=1\\) denote success and \\(Y_i=0\\) failure. A Bernoulli model has \\(\\theta\\in[0,1]\\) and \\[f(y_i\\mid\\theta)=\\theta^{y_i}(1-\\theta)^{1-y_i}\\mathbf1_{\\{0,1\\}}(y_i).\\]\n\n\nIndependent and identically distributed observations\nConditional on a fixed \\(\\theta\\), independence gives a product and identical distributions give the same factor form: \\[f(\\mathbf y\\mid\\theta)=\\prod_{i=1}^n f(y_i\\mid\\theta).\\] For Bernoulli observations with \\(s=\\sum_i y_i\\), \\[f(\\mathbf y\\mid\\theta)=\\theta^s(1-\\theta)^{n-s}.\\] If only the count \\(S=s\\) is observed, its binomial pmf includes \\(\\binom ns\\). That factor counts the possible sequences. It does not affect likelihood ratios in \\(\\theta\\), but matters for probabilities of counts.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 1: Models and Likelihood"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-1.html#data-and-the-likelihood-function",
+    "href": "classes/stat251/midterm/unit-1.html#data-and-the-likelihood-function",
+    "title": "Unit 1: Models and Likelihood",
+    "section": "Data and the likelihood function",
+    "text": "Data and the likelihood function\nBefore observing data, \\(f(y\\mid\\theta)\\) is a pmf/pdf in \\(y\\), with \\(\\theta\\) fixed. After observing \\(y_{\\rm obs}\\), \\[L(\\theta;y_{\\rm obs})=f(y_{\\rm obs}\\mid\\theta)\\] is a function of \\(\\theta\\), with data fixed. It measures relative compatibility with the observations. It is not a probability distribution for \\(\\theta\\) and need not integrate to one over \\(\\Theta\\).\nData enter fitting through this likelihood. In Bayesian inference they update a prior; they do not select a unique model without assumptions. Design flaws or dependence cannot be repaired merely by increasing sample size.\n\nExecutable likelihood example\n\ny &lt;- c(1, 0, 1, 1, 0, 1, 1, 0, 1, 1)\nn &lt;- length(y); s &lt;- sum(y)\ntheta &lt;- seq(0.001, 0.999, length.out = 1000)\nlog_lik &lt;- vapply(theta, function(t) sum(dbinom(y, 1, t, log = TRUE)), 0.0)\nplot(theta, exp(log_lik - max(log_lik)), type = \"l\",\n     xlab = expression(theta), ylab = \"Relative likelihood\")\nabline(v = s/n, lty = 2)\n\n\n\n\n\n\n\nc(successes = s, trials = n, mle = s/n)\n\nsuccesses    trials       mle \n      7.0      10.0       0.7 \n\n\nSubtracting the largest log likelihood prevents numerical underflow and rescales the maximum to one. The Bernoulli maximum likelihood estimate is \\(\\hat\\theta=s/n\\).",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 1: Models and Likelihood"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-1.html#check-your-understanding",
+    "href": "classes/stat251/midterm/unit-1.html#check-your-understanding",
+    "title": "Unit 1: Models and Likelihood",
+    "section": "Check your understanding",
+    "text": "Check your understanding\nWhy can a factor independent of \\(\\theta\\) be omitted when plotting relative likelihoods? Because it cancels in every likelihood ratio. Why can the iid product fail? Repeated measurements on the same person, for example, may remain dependent given the proposed parameter.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 1: Models and Likelihood"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-3.html",
+    "href": "classes/stat251/midterm/unit-3.html",
+    "title": "Unit 3: Bayesian Updating and Summaries",
+    "section": "",
+    "text": "Based on the corresponding unit in the supplied STAT 251 Midterm Exam Topics guide. Numerical examples are illustrative, not additional course data.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 3: Bayesian Updating and Summaries"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-3.html#interpretations-of-probability",
+    "href": "classes/stat251/midterm/unit-3.html#interpretations-of-probability",
+    "title": "Unit 3: Bayesian Updating and Summaries",
+    "section": "Interpretations of probability",
+    "text": "Interpretations of probability\nSymmetry (classical): equally plausible outcomes receive equal probabilities, as with an ideal fair die. Frequency: probability describes a limiting relative frequency in repeated trials under stable conditions. Subjective (Bayesian): probability represents a coherent degree of belief given information. Bayesian inference uses probability to describe uncertainty about unknown parameters as well as future data. Subjective does not mean arbitrary: beliefs should be justified and assessed for sensitivity.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 3: Bayesian Updating and Summaries"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-3.html#bayes-theorem-for-statistical-models",
+    "href": "classes/stat251/midterm/unit-3.html#bayes-theorem-for-statistical-models",
+    "title": "Unit 3: Bayesian Updating and Summaries",
+    "section": "Bayes’ theorem for statistical models",
+    "text": "Bayes’ theorem for statistical models\nFor a continuous parameter and a proper prior, \\[\\pi(\\theta\\mid y_{\\rm obs})=\n\\frac{f(y_{\\rm obs}\\mid\\theta)\\pi(\\theta)}{f(y_{\\rm obs})},\\qquad\nf(y_{\\rm obs})=\\int_\\Theta f(y_{\\rm obs}\\mid t)\\pi(t)\\,dt.\\] For a discrete parameter, replace the integral by a sum. The denominator must be positive and finite.\n\nFour components\n\n\n\n\n\n\n\nComponent\nInterpretation\n\n\n\n\nLikelihood \\(f(y_{\\rm obs}\\mid\\theta)\\)\nHow compatible each parameter is with the observed data\n\n\nPrior \\(\\pi(\\theta)\\)\nUncertainty about the parameter before these data\n\n\nMarginal likelihood \\(f(y_{\\rm obs})\\)\nProbability mass or density of these data averaged over the prior\n\n\nPosterior \\(\\pi(\\theta\\mid y_{\\rm obs})\\)\nUpdated uncertainty about the parameter\n\n\n\nThe marginal likelihood is constant with respect to \\(\\theta\\), since the parameter has been integrated out. It can vary with the data or the model. Therefore, \\[\\pi(\\theta\\mid y_{\\rm obs})\\propto L(\\theta;y_{\\rm obs})\\pi(\\theta).\\] Proportionality identifies a kernel; a density still needs normalization. For continuous data the marginal likelihood is a density, not the probability of the exact observed point.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 3: Bayesian Updating and Summaries"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-3.html#summarizing-a-posterior",
+    "href": "classes/stat251/midterm/unit-3.html#summarizing-a-posterior",
+    "title": "Unit 3: Bayesian Updating and Summaries",
+    "section": "Summarizing a posterior",
+    "text": "Summarizing a posterior\n\nCenter and spread\nThe posterior mean is \\(E(\\theta\\mid y)\\); the median splits posterior mass equally; a mode maximizes posterior density (the MAP estimate). They need not coincide. The posterior standard deviation is \\[\\sqrt{E(\\theta^2\\mid y)-E(\\theta\\mid y)^2}.\\] It measures remaining parameter uncertainty, not Monte Carlo error.\n\n\nRegion probabilities and credible intervals\n\\[P(\\theta\\in A\\mid y)=\\int_A\\pi(\\theta\\mid y)\\,d\\theta.\\] A \\(100(1-\\alpha)\\%\\) credible interval contains posterior probability \\(1-\\alpha\\). An equal-tailed interval uses quantiles \\(\\alpha/2\\) and \\(1-\\alpha/2\\). Highest posterior density regions instead collect high-density values; these summaries can differ for skewed or multimodal posteriors.\n\n# Illustrative posterior Beta(9, 5)\nA &lt;- 9; B &lt;- 5\nc(mean = A/(A+B), median = qbeta(0.5, A, B),\n  mode = (A-1)/(A+B-2), sd = sqrt(A*B/((A+B)^2*(A+B+1))))\n\n     mean    median      mode        sd \n0.6428571 0.6498366 0.6666667 0.1237179 \n\nqbeta(c(0.025, 0.975), A, B)\n\n[1] 0.3857383 0.8614207\n\npbeta(0.8, A, B) - pbeta(0.5, A, B)\n\n[1] 0.7674465\n\n\nThe mode formula above requires both shape parameters to exceed one. Interpret the interval as a 95% posterior probability statement conditional on the observed data and assumed model/prior.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 3: Bayesian Updating and Summaries"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-3.html#check-your-understanding",
+    "href": "classes/stat251/midterm/unit-3.html#check-your-understanding",
+    "title": "Unit 3: Bayesian Updating and Summaries",
+    "section": "Check your understanding",
+    "text": "Check your understanding\nDoes doubling a likelihood everywhere change the normalized posterior? No: the same factor multiplies its normalizing constant. Does a narrow posterior guarantee a good model? No: precision is conditional on the assumptions.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 3: Bayesian Updating and Summaries"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-5.html",
+    "href": "classes/stat251/midterm/unit-5.html",
+    "title": "Unit 5: Monte Carlo Inference",
+    "section": "",
+    "text": "Based on the corresponding unit in the supplied STAT 251 Midterm Exam Topics guide. Numerical examples are illustrative, not additional course data.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 5: Monte Carlo Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-5.html#monte-carlo-expectations",
+    "href": "classes/stat251/midterm/unit-5.html#monte-carlo-expectations",
+    "title": "Unit 5: Monte Carlo Inference",
+    "section": "Monte Carlo expectations",
+    "text": "Monte Carlo expectations\nIf \\(\\theta^{(1)},\\ldots,\\theta^{(J)}\\) are iid draws from a posterior and \\(E(|g(\\theta)|\\mid y)&lt;\\infty\\), then \\[E[g(\\theta)\\mid y]\\approx\\frac1J\\sum_{j=1}^Jg(\\theta^{(j)}).\\] This is integration by simulation, justified by the law of large numbers. For nonlinear \\(g\\), \\(E[g(\\theta)]\\) generally differs from \\(g(E[\\theta])\\).",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 5: Monte Carlo Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-5.html#means-variances-probabilities-and-quantiles",
+    "href": "classes/stat251/midterm/unit-5.html#means-variances-probabilities-and-quantiles",
+    "title": "Unit 5: Monte Carlo Inference",
+    "section": "Means, variances, probabilities, and quantiles",
+    "text": "Means, variances, probabilities, and quantiles\n\nset.seed(251)\nJ &lt;- 50000\nA &lt;- 9; B &lt;- 5\ndraws &lt;- rbeta(J, A, B)\nc(mean = mean(draws), variance = var(draws),\n  mean_square = mean(draws^2), prob_region = mean(draws &gt; 0.5 & draws &lt; 0.8))\n\n       mean    variance mean_square prob_region \n 0.64280644  0.01536732  0.42856713  0.76714000 \n\nquantile(draws, c(0.025, 0.5, 0.975))\n\n     2.5%       50%     97.5% \n0.3859137 0.6500028 0.8616998 \n\n# Exact benchmarks for this conjugate example\nc(mean = A/(A+B), variance = A*B/((A+B)^2*(A+B+1)),\n  mean_square = A*(A+1)/((A+B)*(A+B+1)),\n  prob_region = pbeta(0.8, A, B)-pbeta(0.5, A, B))\n\n       mean    variance mean_square prob_region \n 0.64285714  0.01530612  0.42857143  0.76744654 \n\nqbeta(c(0.025, 0.5, 0.975), A, B)\n\n[1] 0.3857383 0.6498366 0.8614207\n\n\nvar uses denominator \\(J-1\\). A probability estimate is the mean of an indicator; empirical quantiles give an approximate equal-tailed credible interval. Strict and non-strict inequalities are equivalent here because the posterior is continuous.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 5: Monte Carlo Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-5.html#monte-carlo-error-and-number-of-draws",
+    "href": "classes/stat251/midterm/unit-5.html#monte-carlo-error-and-number-of-draws",
+    "title": "Unit 5: Monte Carlo Inference",
+    "section": "Monte Carlo error and number of draws",
+    "text": "Monte Carlo error and number of draws\nRepeated independent simulations give slightly different estimates. For iid draws with finite variance, \\[\\operatorname{MCSE}(\\overline g)\\approx\\frac{s_g}{\\sqrt J}.\\] For a probability estimate \\(\\hat p\\), this becomes \\(\\sqrt{\\hat p(1-\\hat p)/J}\\). Four times as many draws roughly halves this error; precision improves at rate \\(J^{-1/2}\\).\n\np_hat &lt;- mean(draws &gt; 0.5)\nc(mean_mcse = sd(draws)/sqrt(J),\n  probability = p_hat, probability_mcse = sqrt(p_hat*(1-p_hat)/J),\n  posterior_sd = sd(draws))\n\n       mean_mcse      probability probability_mcse     posterior_sd \n    0.0005543883     0.8662200000     0.0015223857     0.1239649981 \n\n\nMCSE measures computational uncertainty; posterior SD measures uncertainty about \\(\\theta\\) given the data. Increasing \\(J\\) reduces the former, not the latter. A seed makes results reproducible but does not remove simulation error. The simple MCSE formula assumes independent draws; autocorrelated MCMC requires effective sample size. Quantile MCSE has a different formula and is larger in sparse tails. A zero estimated rare-event probability does not establish that the true probability is zero.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 5: Monte Carlo Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/midterm/unit-5.html#compare-two-proportions",
+    "href": "classes/stat251/midterm/unit-5.html#compare-two-proportions",
+    "title": "Unit 5: Monte Carlo Inference",
+    "section": "Compare two proportions",
+    "text": "Compare two proportions\nSuppose independent groups have independent beta priors and conditionally independent binomial data. Then the joint posterior factorizes: \\[\\theta_1\\mid y\\sim\\operatorname{Beta}(a_1+s_1,b_1+n_1-s_1),\\quad\n\\theta_2\\mid y\\sim\\operatorname{Beta}(a_2+s_2,b_2+n_2-s_2).\\] Pair independent draws and calculate \\(\\Delta^{(j)}=\\theta_1^{(j)}-\\theta_2^{(j)}\\).\n\nset.seed(252)\nJ &lt;- 50000\ntheta1 &lt;- rbeta(J, 2+18, 2+30-18)\ntheta2 &lt;- rbeta(J, 2+12, 2+28-12)\ndelta &lt;- theta1-theta2\np &lt;- mean(delta &gt; 0)\nc(prob_group1_higher = p, mcse = sqrt(p*(1-p)/J),\n  mean_difference = mean(delta))\n\nprob_group1_higher               mcse    mean_difference \n       0.892400000        0.001385801        0.150233454 \n\nquantile(delta, c(0.025, 0.975))\n\n       2.5%       97.5% \n-0.08719196  0.38041505 \n\nhist(delta, breaks = 50, probability = TRUE,\n     xlab = expression(theta[1]-theta[2]), main = \"Posterior difference\")\nabline(v = 0, lty = 2)\n\n\n\n\n\n\n\n\nThe probability estimates evidence that group 1 has the larger underlying rate. The credible interval describes the size and uncertainty of the difference. Do not subtract marginal interval endpoints to obtain an interval for a difference. If the posterior parameters are dependent, draw jointly from their joint posterior instead of independently.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "Midterm Study",
+      "Unit 5: Monte Carlo Inference"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/notes.html",
+    "href": "classes/stat251/notes.html",
+    "title": "STAT 251 General Notes",
+    "section": "",
+    "text": "The midterm study section connects probability, likelihood, Bayesian updating, simulation, and prediction. Start with the modeling assumptions in Unit 1 and check the distinction between parameter uncertainty and future data in Unit 6.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "General Notes"
+    ]
+  },
+  {
+    "objectID": "classes/stat251/notes.html#study-connections",
+    "href": "classes/stat251/notes.html#study-connections",
+    "title": "STAT 251 General Notes",
+    "section": "",
+    "text": "The midterm study section connects probability, likelihood, Bayesian updating, simulation, and prediction. Start with the modeling assumptions in Unit 1 and check the distinction between parameter uncertainty and future data in Unit 6.",
+    "crumbs": [
+      "Classes",
+      "STAT 251",
+      "General Notes"
     ]
   },
   {
